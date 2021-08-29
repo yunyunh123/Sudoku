@@ -2,24 +2,22 @@
 
 #include <stdio.h> // take out
 #include<vector>
-//#include<SFML/Network.hpp>
-#include "Textbox.h"
+#include<time.h>
 #include "Button.h"
 #include "Grid.h"
 #include <time.h>
 #include <fstream>
 using std::ifstream;
 
-// using std::cout;
 using std::cin;
 using std::stoi;
 using std::vector;
-// using std::string;
 
 int grid_size = 9; // length of each side of the grid (9x9)
 int box_size = 50; // length of each side of the box
 sf::RenderWindow window(sf::VideoMode(675, 500), "Sudoku", sf::Style::Titlebar | sf::Style::Close);
-
+vector<int> filenums;
+int probNum;
 
   /* 
   Boxes are numbered like this:
@@ -42,90 +40,60 @@ int getBoxNum(int x, int y) {
   return grid_size * col + row;
 }
 
+void fileinput() {
 
-void draw(bool sel, int x, int y, int& boxnum) {
-
-  float x_pos = 0;
-  float y_pos = 0;
-
-  for (int i = 0; i < grid_size * grid_size; i++) {
-    x_pos = 25 + ((i % grid_size) * box_size);
-    y_pos = 25 + ((i / grid_size) * box_size);
-
-    // Grid
-    sf::RectangleShape square(sf::Vector2f(box_size,box_size));
-    square.setPosition(x_pos, y_pos);
-    square.setOutlineThickness(2);
-    square.setOutlineColor(sf::Color(172,172,172));
-
-    if(sel and (x > x_pos and x < x_pos + 50) and (y > y_pos and y < y_pos + 50)) {
-      square.setFillColor(sf::Color(122, 141, 204));
-      boxnum = i;
-    } else {
-      square.setFillColor(sf::Color::White);
-    }
-
-    window.draw(square);
-  }
-
-  // Horizontal lines
-  for (int j = 0; j < 4; j++) {
-    sf::RectangleShape line(sf::Vector2f(box_size * grid_size, 4));
-    line.setPosition(25, 25 + j * box_size * 3);
-    line.setFillColor(sf::Color(172,172,172));
-    window.draw(line);
-  }
-
-  // Vertical Lines
-  for (int j = 0; j < 4; j++) {
-    sf::RectangleShape line(sf::Vector2f(4, box_size * grid_size));
-    line.setPosition(25 + j * box_size * 3, 25);
-    line.setFillColor(sf::Color(172,172,172));
-    window.draw(line);
-  }
-}
-
-vector<int> fileinput() {
-  vector<int> gridnums;
-
+ // gridnums.resize(81);
   char c;
   int num;
   int count = 0;
-  std::ifstream ifile("easy.txt");
+  std::ifstream ifile("problems.txt");
   while (ifile >> c) {
     num = c - '0';
     // error check if num is between 0 and 9
-    gridnums.push_back(num);
+    filenums.push_back(num);
   }
+
+  probNum = filenums.size()/81;
+
+
+}
+
+vector<int> getPuzzle() {
+  vector<int> gridnums;
+  int probPicked;
+
+  srand((unsigned)time(NULL));
+  probPicked = rand() % probNum + 1; // generator between 1 and probNum
+
+  for (int i = (probPicked-1) * 81; i < probPicked * 81; i++) {
+    gridnums.push_back(filenums.at(i));
+  }
+
   return gridnums;
 
 }
 
+
+
 int main() {
 
-  vector<int> gridnums = fileinput();
-  Grid grid(gridnums);
-
-  // sf::Texture bg;
-  // sf::Sprite background;
-  // if(!bg.loadFromFile("forest.jpg"))
-  //   return -1;
-  // background.setTexture(bg);
+  fileinput(); // get problem set
+  vector<int> gridnums = getPuzzle();
+  Grid grid(gridnums, grid_size, box_size);
+  grid.setPosition({25,25});
 
   sf::Font arial;
   arial.loadFromFile("arial.ttf");
 
   vector<Button> btns;
   btns.clear();
-  vector<string> str = {"New Game", "Restart", "Solution", "Start Time"};
+  vector<string> str = {"New Game", "Restart", "Correct?", "Start Time"};
   //btns.resize(4);
 
   for (int i = 0; i < 4; i++) {
-    // cout << "Here" << std::endl;
-    //btns.at(i) = Button(str.at(i), {150, 50}, 20, sf::Color::Blue, sf::Color::White);
+ 
     Button btn(str.at(i), {150, 50}, 20, sf::Color::Blue, sf::Color::White);
     btns.push_back(btn);
-    //btns.push_back(Button("hello", {150, 50}, 20, sf::Color::Blue, sf::Color::White));
     btns.at(i).setPosition({500, static_cast<float>(25 + 100 * i)});
     btns.at(i).setFont(arial);
   }
@@ -133,26 +101,21 @@ int main() {
 
   int boxnum = 0;
 
-  vector<Textbox> textboxes;
-  float x_pos = 0, y_pos = 0;
-  for (int i = 0; i < grid_size * grid_size; i++) {
-    x_pos = 37 + ((i % grid_size) * box_size);
-    y_pos = 25 + ((i / grid_size) * box_size);
-
-    textboxes.push_back(Textbox(40, sf::Color::Blue));
-    textboxes.at(i).setFont(arial);
-    textboxes.at(i).setPosition({x_pos, y_pos});
-    textboxes.at(i).setLimit(true,1);
-    textboxes.at(i).setSelect(false);
-  }
-
   bool sel;
   bool startTime = false;;
   int x = 0, y = 0;
 
-  clock_t t;
+  timespec startT, endT;
+  int sec;
+  int min;
+  int hr;
+  char formattedT [9];
+
+
 
   while(window.isOpen()) {
+
+    window.setFramerateLimit(60); // 60 frames per sec
 
     sf::Vector2i position = sf::Mouse::getPosition(window);
 
@@ -163,45 +126,60 @@ int main() {
         window.close();
 
       if(event.type == sf::Event::MouseButtonPressed){
-        switch(event.key.code) {
-          case sf::Mouse::Left:
-            sel = true;
-            x = position.x;
-            y = position.y;
+        if (event.mouseButton.button == sf::Mouse::Left) {   
+          x = position.x;
+          y = position.y;
+          grid.selectBox(x, y);
         }
 
         for (int i = 0; i < 4; i++) {
           if (btns.at(i).isMouseOver(window)) {
             std::cout << "You clicked button " << i << std::endl;
           }
+          if (btns.at(0).isMouseOver(window)) {
+            vector<int> newgridnums = getPuzzle();
+
+            grid.newGrid(newgridnums);
+            grid.setPosition({25,25});
+
+
+          } 
 
           if (btns.at(1).isMouseOver(window)) { // restart
-
-            for (int i = 0; i < 81; i++)
-              textboxes.at(i).empty();
+            grid.resetGrid();
 
             btns.at(3).setText("Start Time");
             startTime = false;
           }
 
+          if (btns.at(2).isMouseOver(window)) {
+            if (grid.isCompleted() == true) {
+              
+              if (grid.checkError() == true){
+                btns.at(2).setText("Congrats!");
+              } else {
+                btns.at(2).setText("No, Retry!");
+              }
+            }
+            else{
+              btns.at(2).setText("No, Retry!");
+            }
+          }
+
           if (btns.at(3).isMouseOver(window)) {
             startTime = true;
+            clock_gettime(CLOCK_REALTIME, &startT);
           }
         }
       }
 
       if(event.type == sf::Event::TextEntered) {
-        textboxes.at(boxnum).typedOn(event);
+        grid.userInput(event);
+        vector<int> gridVals;
+        gridVals = grid.getGrid();
 
-        try {
-          int num = stoi(textboxes.at(boxnum).getText());
-          grid.update_grid(num, boxnum % 9, boxnum / 9);
-        } catch(const std::invalid_argument& ia) {
-          // delete key???
-          std::cerr << "Please enter an integer between 1 and 9, inclusive.\n";
-          textboxes.at(boxnum).empty();
-        }
-      }
+       }
+
 
       if (event.type == sf::Event::MouseMoved) {
         for (int i = 0; i < 4; i++) {
@@ -219,53 +197,31 @@ int main() {
 
     window.clear();
 
-    // drawing window
-    if(sel){
-      draw(true, x, y, boxnum);
-
-      textboxes.at(boxnum).setSelect(true);
-    } else {
-      draw(false, 0, 0, boxnum);
-    }
-
-    for (int i = 0; i < 81; i++) {
-      textboxes.at(i).drawTo(window);
-    }
-
     for (int i = 0; i < 4; i++) {
       btns.at(i).drawTo(window);
     }
 
     if(startTime) {
-      t = clock();
-      // int sec = stoi(to_string(t)) / 1000;
-      // int min = sec / 60;
-      // sec = sec % 60;
-      // printf("%2d:%2d\n", min, sec );
+      clock_gettime(CLOCK_REALTIME, &endT);
+      sec = endT.tv_sec - startT.tv_sec;
+      min = sec / 60;
+      sec = sec % 60;
+      hr = min / 60;
+      min = min % 60;
 
-      // int sec = stoi(to_string(t)) / 1000;
-      btns.at(3).setText("123 sec");
-      //cout << t / 1000 << " seconds";
+
+      sprintf(formattedT, "%02d:%02d:%02d", hr, min, sec);
+
+      btns.at(3).setText(formattedT);
     }
+
+
+    grid.drawGrid(window);
+
+
+    grid.drawNums(window);
 
     window.display();
 
   }
 }
-
-
-/* 
-File input:
-0 means not assigned value yet (user needs to input value)
-integer between 1-9, inclusive, means that the num is fixed
-
-get one char at a time
-stoi to integer (error check) --> boxnum
-
-draw that num onto grid
-
-grid and box class?????
-
-*/
-
-

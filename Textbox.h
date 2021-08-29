@@ -17,9 +17,12 @@ using std::cout;
 class Textbox {
 public:
   // Constructor
+  Textbox();
   Textbox(int size, sf::Color color);
 
   // Public methods
+  void setCharacterSize(int size);
+  void setFillColor(sf::Color color);
   void setFont(sf::Font &font);
   void setPosition(sf::Vector2f pos);
   void setLimit(bool ToF, int lim);
@@ -29,6 +32,7 @@ public:
   void drawTo(sf::RenderWindow &window);
   void typedOn(sf::Event input);
   void empty();
+
 private:
   // Private attributes
   sf::Text textbox;

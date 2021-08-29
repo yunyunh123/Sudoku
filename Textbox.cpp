@@ -1,7 +1,19 @@
 #include "Textbox.h"
 
+Textbox::Textbox() {
+
+}
+
 Textbox::Textbox(int size, sf::Color color) {
   textbox.setCharacterSize(size);
+  textbox.setFillColor(color);
+}
+
+void Textbox::setCharacterSize(int size) {
+  textbox.setCharacterSize(size);
+}
+
+void Textbox::setFillColor(sf::Color color) {
   textbox.setFillColor(color);
 }
 

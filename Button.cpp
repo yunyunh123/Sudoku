@@ -3,8 +3,8 @@
 Button::Button(std::string t, sf::Vector2f size, int charSize, sf::Color bgColor, sf::Color textColor) {
   // default font:
   if(!font.loadFromFile("arial.ttf")) {
-
   }
+  
   text.setFont(font);
   text.setString(t);
   text.setFillColor(textColor);

@@ -1,7 +1,7 @@
 #include "Textbox.h"
 
+// Constructors
 Textbox::Textbox() {
-
 }
 
 Textbox::Textbox(int size, sf::Color color) {
@@ -9,6 +9,7 @@ Textbox::Textbox(int size, sf::Color color) {
   textbox.setFillColor(color);
 }
 
+// Setting up textbook
 void Textbox::setCharacterSize(int size) {
   textbox.setCharacterSize(size);
 }
@@ -41,6 +42,11 @@ std::string Textbox::getText() {
   return text.str();
 }
 
+void Textbox::empty() {
+  text.str("");
+  textbox.setString(text.str());
+}
+
 void Textbox::drawTo(sf::RenderWindow &window) {
   window.draw(textbox);
 }
@@ -64,11 +70,6 @@ void Textbox::typedOn(sf::Event input) {
 
     }
   }
-}
-
-void Textbox::empty() {
-  text.str("");
-  textbox.setString(text.str());
 }
 
 void Textbox::inputLogic(int charTyped) {

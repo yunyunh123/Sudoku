@@ -2,9 +2,7 @@
 #include <iostream>
 #include <string>
 
-
 Box::Box() {
-
 }
 
 Box::Box(int n, bool fixedVal) {
@@ -12,36 +10,18 @@ Box::Box(int n, bool fixedVal) {
   fixed = fixedVal;
   correct = true;
 
-
-  // sf::Font font;
-  // if (!font.loadFromFile("arial.ttf")) {
-  //   //Handle error
-  // }
-
-  // default font
-  // if(!font.loadFromFile("arial.ttf")) {
-
-  // }
-
-  // Box has text if value is fixed
-  // Box has  if value is not fixed (variable)
-
-  if (fixed) {
+  if (fixed) { // Creates a SFML text
     text.setCharacterSize(charSize);
     text.setString(to_string(num));
     text.setFillColor(sf::Color::Black);
     text.setFont(font);
-  } else {
+  } else { // Creates a textbox
     userText.setCharacterSize(charSize);
     userText.setFillColor(sf::Color::Blue);
     userText.setFont(font);
     userText.setLimit(true, 1);
     userText.setSelect(false);
   }
-
-
-
-
 }
 
 void Box::setFont(sf::Font &font) { 
@@ -51,7 +31,6 @@ void Box::setFont(sf::Font &font) {
     userText.setFont(font);
   }
 }
-
 
 void Box::fillAns(int n) {
   num = n;
@@ -89,19 +68,20 @@ void Box::select(bool sel) {
 }
 
 void Box::enterText(sf::Event input) {
+  int temp;
   try {
     userText.typedOn(input);
-    num = std::stoi(userText.getText());
+    temp = std::stoi(userText.getText());
+
+    // Ensure user does not type 0
+    if (temp >= 1 and temp <= 9) {
+      num = temp;
+    } else {
+      userText.empty();
+    }
   } catch (const std::invalid_argument& ia) {
-    //what about delete key
     userText.empty();
-   // std::cerr << "Please enter an integer between 1 and 9, inclusive.\n";
-
   }
-
-
-
-
 }
 
 void Box::clearAns() {

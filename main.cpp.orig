@@ -37,7 +37,7 @@ void fileinput() {
     filenums.push_back(num);
   }
 
-  probNum = filenums.size() / 81;
+  probNum = filenums.size()/81;
 }
 
 // Chooses a random puzzle from filenums
@@ -47,7 +47,7 @@ vector<int> getPuzzle() {
   srand((unsigned)time(NULL));
   probPicked = rand() % probNum + 1; // random generator between 1 and probNum
 
-  for (int i = (probPicked - 1) * 81; i < probPicked * 81; i++) {
+  for (int i = (probPicked-1) * 81; i < probPicked * 81; i++) {
     gridnums.push_back(filenums.at(i));
   }
 
@@ -95,13 +95,15 @@ int main() {
     // Event loop
     sf::Event event;
     while (window.pollEvent(event)) {
-      if (event.type == sf::Event::Closed) { // Window closed
+
+      if (event.type == sf::Event::Closed){ // Window closed
         window.close();
       }
 
-      if(event.type == sf::Event::MouseButtonPressed) { // Mouse event
+      if(event.type == sf::Event::MouseButtonPressed){ // Mouse event
+
         // Box selected
-        if (event.mouseButton.button == sf::Mouse::Left) {
+        if (event.mouseButton.button == sf::Mouse::Left) { 
           x = position.x;
           y = position.y;
           grid.selectBox(x, y);
@@ -109,12 +111,13 @@ int main() {
 
         // Button(s) selected
         for (int i = 0; i < 4; i++) {
+
           // New Game
           if (btns.at(0).isMouseOver(window)) {
             vector<int> newgridnums = getPuzzle();
             grid.newGrid(newgridnums);
             grid.setPosition({gridPos, gridPos});
-          }
+          } 
 
           // Restart
           if (btns.at(1).isMouseOver(window)) {
@@ -128,7 +131,8 @@ int main() {
           if (btns.at(2).isMouseOver(window)) {
             if (grid.isCompleted() == true and grid.checkError() == true) {
               btns.at(2).setText("Congrats!");
-            } else {
+            }
+            else{
               btns.at(2).setText("No, Retry!");
             }
           }
@@ -145,22 +149,28 @@ int main() {
       if (event.type == sf::Event::MouseMoved) {
         for (int i = 0; i < 4; i++) {
           if (btns.at(i).isMouseOver(window)) {
-            btns.at(i).setBackColor(sf::Color(0, 191, 255));
-          } else {
+            btns.at(i).setBackColor(sf::Color(0,191,255));
+          }
+          else {
             btns.at(i).setBackColor(sf::Color::Blue);
           }
         }
       }
 
-      // Text input
       if(event.type == sf::Event::TextEntered) {
         grid.userInput(event);
         vector<int> gridVals;
         gridVals = grid.getGrid();
       }
+
     }
 
-    // Display time spent since button 3 was clicked
+    window.clear();
+
+    for (int i = 0; i < 4; i++) {
+      btns.at(i).drawTo(window);
+    }
+
     if(startTime) {
       clock_gettime(CLOCK_REALTIME, &endT);
       sec = endT.tv_sec - startT.tv_sec;
@@ -169,18 +179,19 @@ int main() {
       hr = min / 60;
       min = min % 60;
 
+
       sprintf(formattedT, "%02d:%02d:%02d", hr, min, sec);
+
       btns.at(3).setText(formattedT);
     }
 
-    // Redraw window
-    window.clear();
 
-    for (int i = 0; i < 4; i++) {
-      btns.at(i).drawTo(window);
-    }
     grid.drawGrid(window);
+
+
     grid.drawNums(window);
+
     window.display();
+
   }
 }

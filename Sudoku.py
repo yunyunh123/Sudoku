@@ -1,9 +1,10 @@
 # Copyright 2021 Julia Hua jhua2@bu.edu
+
 import requests, json, pprint
 from random import randint
 CELL_NUM = 81
 SIZE = 9
-PROBLEMS_NUM = 100 # append 100 puzzles to "problems.txt"
+PROBLEMS_NUM = 100 # append 100 puzzles to "problems.txt" every time program is executed
 
 # Check file
 with open("problems.txt", "r") as file:

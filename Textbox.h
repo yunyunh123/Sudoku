@@ -2,13 +2,11 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>
-#include<iostream>
+#include <iostream>
 #include <string>
-#include<sstream>
+#include <sstream>
 
 using std::string;
-using std::to_string;
-using std::cout;
 
 #define DELETE_KEY 8
 #define ENTER_KEY 13
@@ -29,9 +27,9 @@ public:
   bool selected();
   void setSelect(bool sel);
   std::string getText();
+  void empty();
   void drawTo(sf::RenderWindow &window);
   void typedOn(sf::Event input);
-  void empty();
 
 private:
   // Private attributes
